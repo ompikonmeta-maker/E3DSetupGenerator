@@ -32,8 +32,45 @@
       items: [],
       references: [],
       existing: { dbs: [], sites: [] },
-      users: { adminTeam: { team: '', description: '', members: [] }, freeUsers: [] },
-      texts: defaultTexts()
+      users: { adminTeam: { team: '', label: 'Administration', description: '', exists: true, members: [] }, freeUsers: [] },
+      texts: defaultTexts(),
+      register: defaultRegister()
+    };
+  }
+
+  // Register workbook: ordered sheet list. Generated kinds: packageFiles, teams, dbRegister,
+  // siteOrder, zones, codeList (list: key of codeLists). kind 'text' = free rows { r, cells, role }.
+  function defaultRegister() {
+    return {
+      sheets: [
+        { kind: 'packageFiles', name: 'Package Files', title: '{PACKAGE}.zip - file list',
+          header: ['No', 'Folder', 'File', 'Module', 'Step', 'Content'] },
+        { kind: 'teams', name: 'Teams & Users', title: '{PROJECTCODE} - TEAMS & USERS',
+          header: ['Team', 'Disc', 'Discipline', 'Description', 'DBs', 'Status', 'Members'], notes: [] },
+        { kind: 'dbRegister', name: '{PROJECTCODE} DB Register',
+          header: ['No', 'Discipline', 'Disc Code', 'Team', 'Module/Item', 'Mod Code', 'Func', 'Function', 'DB Name',
+            'Description', 'DB No', 'File No', 'Type', 'Access', 'Claim', 'Site Name', 'Status'] },
+        { kind: 'siteOrder', name: 'Site Order',
+          header: ['Order', 'Discipline', 'Type', 'Site Name', 'Site Description', 'Created in DB', 'DB No', 'Group'] },
+        { kind: 'zones', name: 'Zones', title: '{PROJECTCODE} - Zone Register',
+          header: ['No', 'Discipline', 'Disc', 'Site', 'Zone Name', 'Purpose', 'Doc ref', 'Status'] },
+        { kind: 'codeList', list: 'fluid', name: 'Fluid Codes', title: 'Fluid Codes',
+          header: ['No', 'Code', 'Description', 'Zone pattern', 'Check'] }
+      ],
+      labels: {
+        fileNo: 'System', teamCreated: 'Created', teamToCreate: 'To create', none: '—',
+        freeUsersRow: 'FREE USERS - no team needed, can edit all {PROJECTCODE} DBs',
+        siteTypes: { sepDiscipline: 'Separator - discipline', sepGroup: 'Separator - group', site: 'Site' }
+      },
+      packageFiles: {
+        readme: { module: '—', step: '—', content: 'Package order + preparation' },
+        teams: { module: 'Admin', step: '0', content: '{N_NEW_TEAMS} new teams (+ commented block for existing teams/members)' },
+        b1: { module: 'Admin', step: 'B1', content: 'CREATE {N_DB} DBs + ADD to {MDBNAME} (pos {POS_FROM}-{POS_TO})' },
+        b2: { module: 'Design', step: 'B2', content: '{N_SEP} separators + {N_SITES} sites (display order)' },
+        b3: { module: 'Design', step: 'B3', content: '{N_ZONES} zones' },
+        ref: { module: 'Admin', step: '90', content: 'reference DBs, pos {POS_FROM}-{POS_TO}' },
+        fix: { module: 'Admin', step: '99', content: 'CURRENT {POS_FROM}-{POS_TO} (only if needed)' }
+      }
     };
   }
 

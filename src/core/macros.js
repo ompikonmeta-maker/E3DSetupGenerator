@@ -47,14 +47,14 @@
 
     var entries = [];
     function dir(path) { entries.push({ path: path + '/', dir: true }); }
-    function file(path, lines) { entries.push({ path: path, text: text(lines) }); }
+    function file(path, lines, kind, dd, stats) { entries.push({ path: path, text: text(lines), kind: kind, disc: dd || null, stats: stats || {} }); }
 
     // README
     var untested = untestedItems(d);
     var unt = untested.length ? fmt(T.untested, { ITEMS: untested.join('; ') }, missing) : '';
     var readme = T.readme.split('\n').filter(function (l) { return !(l.trim() === '{UNTESTED}' && !unt); })
       .map(function (l) { return fmt(l, vars({ UNTESTED: unt }), missing); });
-    file(fmt(F.readme, base, missing), readme);
+    file(fmt(F.readme, base, missing), readme, 'readme');
 
     // 00-TEAMS
     var newTeams = discs.filter(function (dd) { return !dd.disc.teamExists; });
@@ -71,7 +71,7 @@
       });
     }
     dir(base.TEAMSDIR);
-    file(base.TEAMSDIR + '/' + fmt(F.teams, base, missing), t);
+    file(base.TEAMSDIR + '/' + fmt(F.teams, base, missing), t, 'teams', null, { N_NEW_TEAMS: newTeams.length });
 
     // Per discipline: B1, B2, B3
     discs.forEach(function (dd) {
@@ -90,7 +90,7 @@
       });
       b1.push('$*', 'SET MDB ' + cfg.project.mdb);
       rows.forEach(function (r) { b1.push('ADD ' + r.db + ' ' + r.mdbPos); });
-      file(folder + '/' + fmt(F.b1, v, missing), b1);
+      file(folder + '/' + fmt(F.b1, v, missing), b1, 'b1', dd, { N_DB: rows.length, POS_FROM: v.POS_FROM, POS_TO: v.POS_TO });
 
       var b2 = header(T.headers.b2, v, missing), lastDb = null;
       dd.siteOrder.forEach(function (s) {
@@ -98,7 +98,7 @@
         lastDb = s.row.db;
       });
       b2.push('$*', 'SAVEWORK');
-      file(folder + '/' + fmt(F.b2, v, missing), b2);
+      file(folder + '/' + fmt(F.b2, v, missing), b2, 'b2', dd, { N_SITES: rows.length, N_SEP: dd.siteOrder.length - rows.length });
 
       var zones = dd.zones.filter(function (z) { return !z.pending; });
       if (zones.length) {
@@ -108,7 +108,7 @@
           b3.push('NEW ZONE ' + z.name);
         });
         b3.push('$*', 'SAVEWORK');
-        file(folder + '/' + fmt(F.b3, v, missing), b3);
+        file(folder + '/' + fmt(F.b3, v, missing), b3, 'b3', dd, { N_ZONES: zones.length });
       }
     });
 
@@ -119,7 +119,7 @@
     ref.push('SET MDB ' + cfg.project.mdb);
     refs.forEach(function (r) { ref.push(r.pending ? pendingLine(cfg, 'ADD ' + r.db, r.note, missing) : 'ADD ' + r.db + ' ' + r.mdbPos); });
     dir(base.REFDIR);
-    file(base.REFDIR + '/' + fmt(F.ref, base, missing), ref);
+    file(base.REFDIR + '/' + fmt(F.ref, base, missing), ref, 'ref', null, { POS_FROM: rv.POS_FROM, POS_TO: d.mdbCount });
 
     // 99-FIXUP: CURRENT for the full final order
     var fix = header(T.headers.fix, base, missing);
@@ -134,9 +134,9 @@
       refs.forEach(function (r) { fix.push(r.pending ? pendingLine(cfg, 'CURRENT ' + r.db, r.note, missing) : 'CURRENT ' + r.db + ' ' + r.mdbPos); });
     }
     dir(base.FIXDIR);
-    file(base.FIXDIR + '/' + fmt(F.fix, base, missing), fix);
+    file(base.FIXDIR + '/' + fmt(F.fix, base, missing), fix, 'fix', null, { POS_FROM: d.mdbCount ? 1 : 0, POS_TO: d.mdbCount });
 
-    return { root: cfg.project.packageName, entries: entries, derived: d, missing: Array.from(new Set(missing)) };
+    return { root: cfg.project.packageName, entries: entries, derived: d, vars: base, missing: Array.from(new Set(missing)) };
 
     function createTeam(dd) { return 'CREATE TEAM ' + dd.disc.team + " DESC '" + dd.teamDesc + "'"; }
   }

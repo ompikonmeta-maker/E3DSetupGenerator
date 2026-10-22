@@ -28,6 +28,7 @@ The approved plan is in `PLAN.md`. Its findings T1–T10 (fixture quirks) are bi
 - Visual style is clean and modern, per `docs/ui-reference.webp`: soft surfaces, rounded cards, an icon rail and a secondary list panel, and a stepper.
 - Code lives in `src/`. The single built file `dist/e3d-setup-generator.html` is committed, and the build runs on the dev machine only.
 - Narrative register texts are free text in the config. The ZRF preset holds the exact fixture text.
+- (2026-10-22, confirmed) A new team with members gets uncommented `SET TEAM` + `TADD`. A discipline with no zones at all gets no B3 file. The "PERLU DITES" README line appears via `{UNTESTED}` in the default README, but not in the ZRF preset (README stays identical to the fixture). The ZRF header texts that cite errors (1,29)/(1,22), which are not in the facts doc, stay verbatim in the ZRF preset only.
 
 ## Commands
 
@@ -37,8 +38,8 @@ The approved plan is in `PLAN.md`. Its findings T1–T10 (fixture quirks) are bi
 
 ## Code layout
 
-- `src/core/` holds pure logic with no DOM: `util`, `model` (schema, `migrate`, defaults, incl. `texts` = package file names + macro/README templates), `derive` (config → DBs/sites/zones/MDB positions), `macros` (package entries; headers are templates, `$* ` prefixed per line), `validate` (issues carry `fact` numbers; also runs `macros` to catch unknown placeholders / non-ASCII).
-- `src/io/` holds `zip` (reader via `DecompressionStream`, store-mode writer + CRC32), `xlsx` (regex reader, cell values only) and `tables` (code lists, existing-DB tables, CSV).
+- `src/core/` holds pure logic with no DOM: `util`, `model` (schema, `migrate`, defaults, incl. `texts` = package file names + macro/README templates), `derive` (config → DBs/sites/zones/MDB positions), `macros` (package entries; headers are templates, `$* ` prefixed per line), `register` (config.register.sheets → rows of cell values; kinds packageFiles/teams/dbRegister/siteOrder/zones/codeList/text; text cells may use placeholders such as {N_NEW_TEAMS}, {MDB_TOTAL}, {DISC_SEQUENCE}), `validate` (issues carry `fact` numbers; also runs `macros` to catch unknown placeholders / non-ASCII).
+- `src/io/` holds `zip` (reader via `DecompressionStream`, store-mode writer + CRC32, `writeDeflate` via `CompressionStream`), `xlsx` (regex reader, cell values only; writer with inlineStr, frozen header, autofilter, status tones) and `tables` (code lists, existing-DB tables, CSV).
 - `src/presets/zrf.js` holds the ZRF config, taken from the fixtures.
 - Every file is a classic script that registers on the global `E3D`. Load order is the `<script>` list in `tests/test.html`.
 - Item order in the config is the register order. Display order (sites, B1/B2/B3, MDB) is derived by sorting stably by group (PLAN T1).

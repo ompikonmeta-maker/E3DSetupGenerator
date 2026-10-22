@@ -467,7 +467,7 @@
   "users": {
     "adminTeam": {
       "team": "ZRFADM",
-      "description": "TEAM FOR ADMINISTRATOR ZR FLNG",
+      "label": "Administration", "description": "TEAM FOR ADMINISTRATOR ZR FLNG", "exists": true,
       "members": [ "TSETIANTO", "AANTARIKSA", "PKUSUMA", "SYSTEM" ]
     },
     "freeUsers": [
@@ -517,6 +517,119 @@
         'Use only if the MDB order is wrong (e.g. disciplines run out of order).',
         'A DB that is not in {MDBNAME} stops the macro (error 1,22): ADD it first.', BANNER, ''].join('\n')
     }
+  };
+
+  // Register workbook, verbatim from ZRF-E3D-Register.xlsx (rev 2026-10-21); computed values are placeholders.
+  ZRF.register = {
+    sheets: [
+      { kind: "text", name: "Setup Steps", widths: [8, 40, 70, 10, 50],
+        rows: [
+          {"r": 1, "cells": ["{PROJECTCODE} - SETUP FROM ZERO - command macros (package {PACKAGE}.zip)"], "role": "title"},
+          {"r": 2, "cells": ["Command macros only (Import Config route dropped 2026-10-20). Disciplines in order {FIRST} -> {LAST}, then 90."]},
+          {"r": 4, "cells": ["Step", "What", "File (in {PACKAGE}.zip)", "Module", "Check"], "role": "header"},
+          {"r": 5, "cells": ["P", "Preparation", "Delete all old {PROJECTCODE} DBs  •  {MDBNAME} empty  •  no old {PROJECTCODE} DB files in project folder  •  nobody logged in", "Admin", "Admin > Databases list"]},
+          {"r": 6, "cells": ["0", "Teams ({N_NEW_TEAMS} new)", "{TEAMSDIR}/{PROJECTCODE}-00-TEAMS-ADMIN.mac", "Admin", "{N_TEAMS} {PROJECTCODE} teams + {ADMINTEAM}"]},
+          {"r": 7, "cells": ["B1", "{DB_PER_DISC} DBs + add to {MDBNAME} (final positions)", "xx-<D>-<TEAM>/{PROJECTCODE}-xx-<D>-B1-CREATE-DB-MDB-ADMIN.mac", "Admin", "Q DBNO = sheet {PROJECTCODE} DB Register; MDB list = sheet Site Order"]},
+          {"r": 8, "cells": ["B2", "{SEP_PER_DISC} separators + {DB_PER_DISC} sites, display order", "{PROJECTCODE}-xx-<D>-B2-SITES-DESIGN.mac", "Design", "Explorer = sheet Site Order"]},
+          {"r": 9, "cells": ["B3", "Zones (doc 3.9)", "{PROJECTCODE}-xx-<D>-B3-ZONES-DESIGN.mac (R L M S A H only)", "Design", "sheet Zones"]},
+          {"r": 10, "cells": ["", "Repeat B1-B3 per discipline", "{DISC_SEQUENCE}", "—", "—"]},
+          {"r": 11, "cells": ["90", "Reference DBs (catalogue + ENI FEED)", "{REFDIR}/{PROJECTCODE}-90-REF-MDB-ADMIN.mac (pos {REF_FROM}-{MDB_TOTAL})", "Admin", "{MDBNAME} total {MDB_TOTAL}"]},
+          {"r": 12, "cells": ["99", "Fix-up (only if MDB order wrong)", "{FIXDIR}/{PROJECTCODE}-99-MDB-REORDER-ADMIN.mac", "Admin", "—"]},
+          {"r": 14, "cells": ["Notes"], "role": "section"},
+          {"r": 15, "cells": ["•  Re-enter DESIGN after each Admin step, so new DBs / MDB changes are read."]},
+          {"r": 16, "cells": ["•  MDB positions are absolute (Equipment 1-25, Piping 26-50, Handling 51-75, ...): run disciplines in order. Wrong order -> run 99-FIXUP."]},
+          {"r": 17, "cells": ["•  Import Config route dropped (2026-10-20). Test: Import with WithType=SITE / WithName=/site did NOT create the site; meaning of the columns not documented (help.aveva.com AUGA 13.13.x)."]},
+          {"r": 18, "cells": ["•  B2 pattern (tested omPik, Piping): DB written once per DB on its first site; next lines without DB go to the same DB."]},
+          {"r": 19, "cells": ["•  Order: DB list follows DB No; MDB follows ADD position (right-most number in B1)."]},
+          {"r": 20, "cells": ["•  REORDER not used. Field finding: REORDER only between sites in the SAME DB; needs WORLD as current element (/*), else error (41,227)."]},
+          {"r": 21, "cells": ["•  Site order across DBs follows MDB order (to confirm after first discipline)."]},
+          {"r": 22, "cells": ["•  DB No rule (rev 2026-10-21): 10000 + disc order x100 + slot; MODULES 01-10, PIPE-RACK 11-20, HULL-DECK 21-30, HULL-BODY 31-40, HOOK-UP 41-50, OTHERS 51-60, Future 61, Study 62, Dummy 71 (function X)."]},
+          {"r": 23, "cells": ["•  Paris users (PIP, ELE, INS, STR) already removed from ZRF teams (decision 2026-10-19) - not in package."]},
+          {"r": 24, "cells": ["•  E/I/T/N zones: naming not defined in doc 3.9 - no B3 file for these disciplines."]},
+          {"r": 25, "cells": ["•  DB creation error (43,41) \"Unable to open DB ... MCD:6 The handle is invalid\" (and dabacon error 536) occurs RANDOMLY with BOTH Import Config and CREATE DB macro (tests 19-10-2026) -> environment issue, not file/syntax. Fewer errors without WithType SITE (7 -> 1 per 23 DBs). Single-DB import succeeded. Open with AVEVA support (Save Support Info)."]},
+          {"r": 26, "cells": [""]},
+          {"r": 27, "cells": ["Sources (AVEVA)"], "role": "section"},
+          {"r": 28, "cells": ["CREATE / ADD / CURRENT / DEFER - help.aveva.com/AVEVA_Everything3D/1.1/ACRM (8.08.023, 8.08.008, 8.08.024, 8.08.027)"]},
+          {"r": 29, "cells": ["REORDER - help.aveva.com/AVEVA_Everything3D/2.1/DBRM/DBRM4.05.5.html"]},
+          {"r": 30, "cells": ["Community (not AVEVA docs): NEW SITE ... DB team/db"]}
+        ]
+      },
+      { kind: "packageFiles", name: "Package Files", title: "{PACKAGE}.zip - file list", header: ["No", "Folder", "File", "Module", "Step", "Content"] },
+      { kind: "teams", name: "Teams & Users", title: "{PROJECTCODE} - TEAMS & USERS", header: ["Team", "Disc", "Discipline", "Description", "DBs", "Status", "Members"],
+        notes: ["Membership verified from Export Config (template_ImportConfig.xlsx). Paris users PIP, ELE, INS, STR removed from ZRF teams (decision 2026-10-19, done).", "Status colours: green = Created, yellow = To create (00-TEAMS macro)."]
+      },
+      { kind: "dbRegister", name: "{PROJECTCODE} DB Register", header: ["No", "Discipline", "Disc Code", "Team", "Module/Item", "Mod Code", "Func", "Function", "DB Name", "Description", "DB No", "File No", "Type", "Access", "Claim", "Site Name", "Status"] },
+      { kind: "siteOrder", name: "Site Order", header: ["Order", "Discipline", "Type", "Site Name", "Site Description", "Created in DB", "DB No", "Group"] },
+      { kind: "zones", name: "Zones", title: "{PROJECTCODE} - Zone Register (per doc 3.8/3.9)", header: ["No", "Discipline", "Disc", "Site", "Zone Name", "Purpose", "Doc ref", "Status"] },
+      { kind: "codeList", list: "fluid", name: "Fluid Codes", title: "Fluid Codes - piping zone /<Site>-PIPE-<Code> (doc 3.9 B)", header: ["No", "Code", "Fluid (as received, spaces trimmed)", "Piping zone pattern", "Check"] },
+      { kind: "text", name: "Naming Rules", widths: [10, 30, 60, 60],
+        rows: [
+          {"r": 1, "cells": ["Naming rules - source: project doc 3.8 / 3.9 (as provided)"], "role": "title"},
+          {"r": 3, "cells": ["Doc", "Element", "Rule", "Example / remark"], "role": "header"},
+          {"r": 4, "cells": ["3.8", "Database", "DB per Module and Discipline; every item modelled in its dedicated site belonging to a specific DB", "e.g. piping module P1 -> site /L-P1D in DB 3052 (ENI example)"]},
+          {"r": 5, "cells": ["3.9 A/B", "Site", "/<Disc>-<Module><Function>", "/L-P1D  (L=discipline, P1=module, D=function)"]},
+          {"r": 6, "cells": ["3.9 B", "Zone - Piping", "/<Site>-PIPE-<FluidCode>", "/L-P1D-PIPE-FG (fluid code per P&ID)"]},
+          {"r": 7, "cells": ["3.9 B", "Pipe", "/<Site>-<Fluid>-<Sector/System><Seq>-<Class>-<Insul>", "/L-P1D-FG-001990-008-C42-V"]},
+          {"r": 8, "cells": ["3.9 B", "Branch", "Automatic (/B1, /B2 ...)", ""]},
+          {"r": 9, "cells": ["3.9 B", "Branch primitives", "Actuated valve / instrument / special item tags", "BDV-163, FIT-013, SP-012100LH001"]},
+          {"r": 10, "cells": ["3.9 C", "Zone - Vessel trim", "ZRF: /<Site>-PIPE-VT (doc: -PIPE-TRIM, not used)", "/L-P1D-PIPE-VT - decision 2026-10-19"]},
+          {"r": 11, "cells": ["3.9 C", "Vessel trim pipe", "/<Site>-TRIM-<EquipTag>-<Nozzle>-<Class>-<Insul>", "doc example /LP1D-TRIM-003000VQ001-N1-C42-V (missing hyphen after L - doc typo?)"]},
+          {"r": 12, "cells": ["3.9 D", "Zone - Equipment", "/<Site>-EQUI ; /<Site>-NIEQP", "/R-P1D-EQUI, /R-P1D-NIEQP"]},
+          {"r": 13, "cells": ["3.9 D", "Equipment", "/<Site>-<EquipTag> ; non-itemized /<Site>-<EQP|STA|LAD|PLF>-<nnn>", "/R-P1D-003000VQ001, /R-P1D-EQP-001"]},
+          {"r": 14, "cells": ["3.9 D", "Sub-equipment", "-BODY ; -NOZ-<letter per P&ID>", "/R-P1D-003000VQ001-BODY"]},
+          {"r": 15, "cells": ["3.9 E", "Zone - Safety", "/<Site>-EQUI ; -NIEQP-TRAN ; -NIEQP-LONG", "/S-P1D-NIEQP-TRAN"]},
+          {"r": 16, "cells": ["3.9 E", "Safety non-itemized types", "PER, SER, DCO (not used in FEED), FFE", "/S-P1D-TRAN-PER-001"]},
+          {"r": 17, "cells": ["3.9 F", "Zone - Handling", "/<Site>-EQUI ; -NIEQP-TRAN ; -NIEQP-LONG", "/M-P1D-NIEQP-LONG"]},
+          {"r": 18, "cells": ["3.9 F", "Handling non-itemized types", "HVO, LDA, TRO, RUN, CRA, HAT", "/M-P1D-TRAN-HVO-001"]},
+          {"r": 19, "cells": ["3.9 G", "Zone - Architecture", "/<Site>-WALL", "/A-S1D-WALL ; structure /A-S1D-WALL-LV (doc shows /A-P1D-WALL-LV - inconsistent site)"]},
+          {"r": 20, "cells": ["3.9 H", "Zone - HVAC", "/<Site>-EQUI ; -NIEQP ; -DUCT", "/H-S1D-DUCT ; branches SPL, RTN, EXH, PRD"]},
+          {"r": 21, "cells": ["3.9 I", "Structure (CIV)", "PDMS: ref TI-SSA-ENG-STR 3106-E ; TEKLA: Project Procedure 3D CAD", "Not detailed in doc"]},
+          {"r": 22, "cells": ["3.9 J", "Turret structure", "Doc: site /N-TASD ; zone /N-TASD/TM-MAS", "DECISION 2026-10-19: ZRF keeps own scheme (/N-TRD); doc 3.9 J not applied"]},
+          {"r": 23, "cells": ["—", "Electrical / Instrumentation / Telecom", "No zone naming in doc 3.9", "PENDING"]}
+        ]
+      },
+      { kind: "text", name: "Access", widths: [44, 26, 24, 24, 30],
+        rows: [
+          {"r": 1, "cells": ["ZRF - DATABASE ACCESS"], "role": "title"},
+          {"r": 2, "cells": ["Principle: a DB can be EDITED by its owning team; other disciplines can only VIEW it (read-only). This also applies to Study DBs."]},
+          {"r": 4, "cells": ["Who  \\  DB", "Installed - own discipline", "Study - own discipline", "Study - other discipline", "ENI FEED & catalogues (foreign)"], "role": "header"},
+          {"r": 5, "cells": ["Team member of the discipline (General user)", "EDIT", "EDIT", "VIEW", "VIEW"]},
+          {"r": 6, "cells": ["General user of another discipline", "VIEW", "VIEW", "VIEW", "VIEW"]},
+          {"r": 7, "cells": ["Free user (TSETIANTO, AANTARIKSA, PKUSUMA, SYSTEM)", "EDIT", "EDIT", "EDIT", "VIEW (to verify)"]},
+          {"r": 9, "cells": ["Notes"], "role": "section"},
+          {"r": 10, "cells": ["•  Example: Study DB for Piping = ZRFPIP/DESI-L-STS -> only ZRFPIP members (and Free users) can edit. Full list: tab \"ZRF DB Register\", filter Function = Study."]},
+          {"r": 11, "cells": ["•  Free users bypass all restrictions -> keep the number of Free users small."]},
+          {"r": 12, "cells": ["•  VIEW cannot be hidden through team ownership. DAC can only restrict create/modify/delete and output/export/copy (not used in ZRF)."]},
+          {"r": 13, "cells": ["•  Foreign DBs: source [1] lists \"foreign from another project\" as a restricted (read-only) case; whether this also applies to Free users is not stated -> to verify."]},
+          {"r": 14, "cells": ["•  Decision: option (a), 19-10-2026."]},
+          {"r": 15, "cells": [""]},
+          {"r": 16, "cells": ["Sources"], "role": "section"},
+          {"r": 17, "cells": ["[1] Database Access - docs.aveva.com/bundle/administration/page/871680.html"]},
+          {"r": 18, "cells": ["[2] Teams and Users - docs.aveva.com/bundle/administration/page/871679.html"]},
+          {"r": 19, "cells": ["[3] Data Access Control (DAC) - docs.aveva.com/bundle/administration/page/871769.html"]}
+        ]
+      },
+      { kind: "text", name: "Notes", widths: [18, 120],
+        rows: [
+          {"r": 1, "cells": ["ZRF DB / Site Register — notes"], "role": "title"},
+          {"r": 3, "cells": ["Scope", "Per discipline: 22 modules (incl. Hull Body HB) + Future + Study + Dummy = 25 DB. 10 disciplines = 250 DB (rev 2026-10-21)"]},
+          {"r": 4, "cells": ["Module changes", "2026-10-19: Living Quarters code LQ -> LV (avoid clash with ENI sites /R-LQD, /L-LQD). Hook Up (HK, DB slot 41, own separator group HOOK-UP) added - NOT YET in official project document."]},
+          {"r": 5, "cells": ["DB No formula", "10000 + (disc order x100) + slot (rev 2026-10-21). Slot by site-order group: MODULES 01-10, PIPE-RACK 11-20, HULL-DECK 21-30, HULL-BODY 31-40, HOOK-UP 41-50, OTHERS 51-60, Future 61, Study 62, Dummy 71 (function X, e.g. R-DUX 10171). Gaps reserved for new modules."]},
+          {"r": 6, "cells": ["Name", "TEAM/DESI-<Disc>-<Code><Func>  | Func: D=Installed, F=Future, S=Study"]},
+          {"r": 7, "cells": ["Site", "/<Disc>-<Code><Func>"]},
+          {"r": 8, "cells": ["Desc", "\"DB for <Disc> - <Module/Future/Study>\""]},
+          {"r": 9, "cells": ["Func codes", "D & F per project doc 3.7; S (Study) and X (Dummy Model) = project additions, not in doc"]},
+          {"r": 10, "cells": ["Teams", "ZRF-prefixed NEW teams, separate from EQP/PIP/STR (owners of included ENI FEED refs)"]},
+          {"r": 11, "cells": ["Collision", "0 clash with ENI/SMA/FAN/ACP names and DB numbers (verified)"]},
+          {"r": 12, "cells": ["Access", "MULTIWRITE, CLAIM IMPLICIT. Syntax verified: CREATE DB team/db DESI ACCESS MULTIWRITE CLAIM IMPLICIT DBNO n DESC 'text'"]},
+          {"r": 13, "cells": ["MDB", "Limit 5000 DB per MDB (current docs). 230 ZRF + 13 cat (+3 SMA pending) + 109 ENI fits one MDB; per-discipline split is optional. MDB list position range 1-1000 (ACRM ADD/CURRENT)."]},
+          {"r": 14, "cells": ["Module list", "HOLD in source — refine after process block diagram"]},
+          {"r": 15, "cells": ["Zones", "2906 zones from doc 3.9 (R, L 107 fluid codes, S, M, A, H). Piping zones pre-created (decision 2026-10-19); vessel trim = -PIPE-VT, no -PIPE-TRIM. E/I/T/N zone naming PENDING. Turret: ZRF keeps own scheme /N-TRD (doc 3.9 J /N-TASD not applied)."]},
+          {"r": 16, "cells": ["Teams macro", "Only the 5 missing teams are created (ZRFHDL, ZRFSFT, ZRFARC, ZRFHVA, ZRFTEL); description follows existing convention \"TEAM FOR ... ZR FLNG\"."]}
+        ]
+      }
+    ],
+    packageFiles: {"ref": {"module": "Admin", "step": "90", "content": "catalogue/spec + ENI FEED, pos {POS_FROM}-{POS_TO}"}}
   };
 
   E3D.presets = E3D.presets || {};

@@ -100,8 +100,13 @@
 
     // Package texts: unknown placeholders and non-ASCII output (encoding in E3D macros not verified)
     if (E3D.macros) {
-      var pkg = E3D.macros.generate(cfg, { date: '2000-01-01' });
-      pkg.missing.forEach(function (k) { add('error', 'placeholder', '', 'Placeholder {' + k + '} tidak dikenal di teks paket.', 'texts'); });
+      var reg = E3D.register ? E3D.register.build(cfg, { date: '2000-01-01' }) : null;
+      var pkg = reg ? reg.pkg : E3D.macros.generate(cfg, { date: '2000-01-01' });
+      (reg ? reg.missing : pkg.missing).forEach(function (k) {
+        add('error', 'placeholder', '', 'Placeholder {' + k + '} tidak dikenal di teks paket/register.', 'texts');
+      });
+      if (reg && E3D.xlsx && E3D.xlsx.sheetNameProblems) E3D.xlsx.sheetNameProblems(reg.sheets.map(function (s) { return s.name; }))
+        .forEach(function (m) { add('error', 'sheet-name', '', m + ' (aturan Excel)', 'register.sheets'); });
       pkg.entries.forEach(function (e) {
         if (!e.dir && /[^\x00-\x7f]/.test(e.text))
           add('warning', 'non-ascii', '§9', e.path + ' berisi karakter non-ASCII; encoding di E3D belum dites (perlu dites).', 'texts');

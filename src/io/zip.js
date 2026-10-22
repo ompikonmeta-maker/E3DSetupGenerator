@@ -67,23 +67,25 @@
     };
   }
 
-  // entries: [{ name, data?: Uint8Array, dir?: bool, date?: Date }] -> Uint8Array
+  // entries: [{ name, data?: Uint8Array, dir?: bool, date?: Date, deflated?: Uint8Array }] -> Uint8Array
+  // `deflated` (raw deflate of data) switches the entry to method 8.
   function writeZip(entries) {
     var enc = new TextEncoder(), parts = [], central = [], offset = 0;
     entries.forEach(function (e) {
-      var name = enc.encode(e.name), data = e.dir ? new Uint8Array(0) : e.data;
-      var crc = crc32(data), t = dosTime(e.date || new Date());
+      var name = enc.encode(e.name), raw = e.dir ? new Uint8Array(0) : e.data;
+      var method = e.deflated ? 8 : 0, data = e.deflated || raw, size = raw.length;
+      var crc = crc32(raw), t = dosTime(e.date || new Date());
       var utf8 = /[^\x00-\x7f]/.test(e.name) ? 0x0800 : 0;
       var lh = new DataView(new ArrayBuffer(30));
-      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 10, true); lh.setUint16(6, utf8, true);
-      lh.setUint16(8, 0, true); lh.setUint16(10, t.time, true); lh.setUint16(12, t.date, true);
-      lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true);
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, method ? 20 : 10, true); lh.setUint16(6, utf8, true);
+      lh.setUint16(8, method, true); lh.setUint16(10, t.time, true); lh.setUint16(12, t.date, true);
+      lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, size, true);
       lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
       parts.push(new Uint8Array(lh.buffer), name, data);
       var ch = new DataView(new ArrayBuffer(46));
-      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 10, true); ch.setUint16(8, utf8, true);
-      ch.setUint16(10, 0, true); ch.setUint16(12, t.time, true); ch.setUint16(14, t.date, true);
-      ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true);
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, method ? 20 : 10, true); ch.setUint16(8, utf8, true);
+      ch.setUint16(10, method, true); ch.setUint16(12, t.time, true); ch.setUint16(14, t.date, true);
+      ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, size, true);
       ch.setUint16(28, name.length, true); ch.setUint32(38, e.dir ? 0x10 : 0, true); ch.setUint32(42, offset, true);
       central.push(new Uint8Array(ch.buffer), name);
       offset += 30 + name.length + data.length;
@@ -98,6 +100,20 @@
     return out;
   }
 
+  function deflateRaw(bytes) {
+    var stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    return new Response(stream).arrayBuffer().then(function (ab) { return new Uint8Array(ab); });
+  }
+
+  // Same as writeZip, but deflates file entries (built-in CompressionStream) when it saves space.
+  function writeZipDeflate(entries) {
+    return Promise.all(entries.map(function (e) {
+      if (e.dir || !e.data.length) return e;
+      return deflateRaw(e.data).then(function (z) { return z.length < e.data.length ? Object.assign({}, e, { deflated: z }) : e; });
+    })).then(writeZip);
+  }
+
   E3D.zip.write = writeZip;
+  E3D.zip.writeDeflate = writeZipDeflate;
   E3D.zip.crc32 = crc32;
 })(globalThis.E3D || (globalThis.E3D = {}));

@@ -61,6 +61,16 @@
   .gap { margin-top: 18px; }
   pre.code { margin: 0; padding: 12px 14px; font: 12px/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-x: auto; }
   pre.code .c { color: var(--muted); }
+  .regHead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 12px; }
+  .tab { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+  .tab.on { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+  .tablewrap { overflow-x: auto; padding: 0; }
+  table.sheet { border-collapse: collapse; font-size: 12px; width: 100%; }
+  table.sheet td { padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: pre-line; vertical-align: top; max-width: 380px; }
+  table.sheet td.n { color: var(--muted); text-align: right; width: 1%; }
+  table.sheet tr.header td { font-weight: 600; background: var(--surface-2); }
+  table.sheet tr.title td { font-weight: 600; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -105,6 +115,13 @@
       <div class="inner" id="results"></div>
     </section>
   </div>
+
+  <section class="card gap">
+    <div class="regHead"><div><h2>Snapshot: register XLSX</h2><p class="hint">Isi sel hasil generate preset ZRF (12 baris pertama per sheet).</p></div>
+      <button class="btn ghost" id="dlReg">Unduh XLSX</button></div>
+    <div class="tabs" id="regTabs"></div>
+    <div class="inner tablewrap"><table class="sheet" id="regTable"></table></div>
+  </section>
 </div>
 
 <script src="../src/core/util.js"></script>
@@ -112,6 +129,7 @@
 <script src="../src/core/derive.js"></script>
 <script src="../src/core/validate.js"></script>
 <script src="../src/core/macros.js"></script>
+<script src="../src/core/register.js"></script>
 <script src="../src/io/zip.js"></script>
 <script src="../src/io/xlsx.js"></script>
 <script src="../src/io/tables.js"></script>
@@ -119,6 +137,7 @@
 <script src="harness.js"></script>
 <script src="cases/phase1.js"></script>
 <script src="cases/phase2.js"></script>
+<script src="cases/phase3.js"></script>
 <script>
 (function () {
   'use strict';
@@ -180,6 +199,29 @@
     }).join('\n');
   }
 
+  var reg = null;
+  function renderRegister(name) {
+    reg = reg || E3D.register.build(E3D.presets.zrf.build());
+    var sh = reg.sheets.find(function (x) { return x.name === name; }) || reg.sheets[0];
+    $('regTabs').innerHTML = reg.sheets.map(function (x) {
+      return '<button class="tab' + (x === sh ? ' on' : '') + '" data-s="' + esc(x.name) + '">' + esc(x.name) + '</button>';
+    }).join('');
+    var ncol = sh.rows.reduce(function (m, r) { return Math.max(m, r.cells.length); }, 0);
+    $('regTable').innerHTML = sh.rows.slice(0, 12).map(function (r) {
+      var tds = '';
+      for (var i = 0; i < ncol; i++) tds += '<td>' + esc(r.cells[i] == null ? '' : r.cells[i]) + '</td>';
+      return '<tr class="' + r.role + '"><td class="n">' + r.r + '</td>' + tds + '</tr>';
+    }).join('');
+  }
+  $('regTabs').addEventListener('click', function (e) { if (e.target.dataset.s) renderRegister(e.target.dataset.s); });
+  $('dlReg').addEventListener('click', function () {
+    E3D.xlsx.write(reg || E3D.register.build(E3D.presets.zrf.build())).then(function (bytes) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+      a.download = 'ZRF-E3D-Register.xlsx'; a.click();
+    });
+  });
+
   function run() {
     $('results').innerHTML = ''; $('status').textContent = 'Berjalan…';
     var pass = 0, fail = 0, t0 = Date.now();
@@ -208,6 +250,7 @@
 
   renderTree();
   renderMacro();
+  renderRegister('ZRF DB Register');
   loadAll().then(function (cached) {
     Object.assign(fixtures, cached); renderFixtures();
     if (NEEDED.every(function (n) { return fixtures[n]; })) run();
