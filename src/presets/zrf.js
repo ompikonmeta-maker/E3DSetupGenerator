@@ -478,6 +478,47 @@
     ]
   }
 };
+
+  // Package texts, verbatim from ZRF-SETUP-PACKAGE.zip (rev 2026-10-21).
+  var BANNER = '===========================================================';
+  ZRF.texts = {
+    readme: [
+      '{PROJECTCODE} ({PROJECT}) - E3D SETUP PACKAGE (start from zero)',
+      'Generated {DATE}. Full guide: {REGISTER}, sheet \'Setup Steps\'.',
+      '',
+      'PREPARATION (Admin, SYSTEM)',
+      ' - Delete all old {PROJECTCODE} DBs. Check {MDBNAME} is empty and no old {PROJECTCODE} DB files remain in the project folder.',
+      ' - Nobody else logged in to {PROJECTCODE}.',
+      '',
+      'STEPS (command macros only)',
+      ' {TEAMSDIR} -> per discipline: B1 (Admin) -> B2 sites (Design) -> B3 zones (Design)',
+      '',
+      'ORDER: disciplines {FIRST} -> {LAST} (MDB positions follow on), then {REFDIR}.',
+      'Admin steps before Design steps; re-enter DESIGN after each Admin step.',
+      '{FIXDIR} only if the MDB order is wrong.',
+      '',
+      'KNOWN ISSUE: random \'(43,41) Unable to open DB ... MCD:6 The handle is invalid\' while creating DBs.',
+      'Note the DB, delete it in Admin if broken, recreate it, continue.'
+    ].join('\n'),
+    headers: {
+      teams: [BANNER, '{PROJECTCODE} - STEP 0 - TEAMS - ADMIN (SYSTEM) - both routes',
+        'Skip a line if the team already exists (error 1,29 Team name already defined).',
+        'Run once, before discipline {FIRST}.', BANNER, ''].join('\n'),
+      b1: [BANNER, '{DISCIPLINE} ({TEAM}) - STEP B1 - ADMIN: CREATE {N} DB + MDB',
+        'Team must exist ({TEAMSDIR}). If a CREATE line fails: recreate that DB, continue next line.',
+        'MDB positions {POS_FROM}-{POS_TO}: run disciplines in order {FIRST}->{LAST} (positions follow on).', BANNER, ''].join('\n'),
+      b2: [BANNER, '{DISCIPLINE} - STEP B2 - DESIGN: separators + {N} sites (display order)',
+        'DB given once per DB (first site); next lines without DB go to the same DB.',
+        'Pattern tested OK by omPik (Piping). Re-enter DESIGN after B1.', BANNER, ''].join('\n'),
+      b3: [BANNER, '{DISCIPLINE} - STEP B3 - DESIGN: zones (doc 3.9)', 'Each block: go to SITE, NEW ZONE.', BANNER, ''].join('\n'),
+      ref: [BANNER, 'REFERENCE DBs (catalogue/spec/dict + ENI FEED) - ADMIN: add to {MDBNAME}',
+        'Run AFTER all {N_DISC} disciplines (positions {POS_FROM}+). SMA lines commented (folder pending).', BANNER, ''].join('\n'),
+      fix: [BANNER, '{MDBNAME} FIX-UP - ADMIN: CURRENT db n for all (final order)',
+        'Use only if the MDB order is wrong (e.g. disciplines run out of order).',
+        'A DB that is not in {MDBNAME} stops the macro (error 1,22): ADD it first.', BANNER, ''].join('\n')
+    }
+  };
+
   E3D.presets = E3D.presets || {};
   E3D.presets.zrf = { name: 'ZRF (ZR FLNG)', build: function () { return E3D.model.migrate(ZRF); } };
 })(globalThis.E3D || (globalThis.E3D = {}));

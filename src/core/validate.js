@@ -98,6 +98,16 @@
       if (n && last >= cfg.dbNumber.disciplineStep) add('error', 'slot-overflow', '', 'Grup ' + g.name + ': slot ' + last + ' melewati jatah per disiplin (' + cfg.dbNumber.disciplineStep + ').', 'groups.' + i);
     });
 
+    // Package texts: unknown placeholders and non-ASCII output (encoding in E3D macros not verified)
+    if (E3D.macros) {
+      var pkg = E3D.macros.generate(cfg, { date: '2000-01-01' });
+      pkg.missing.forEach(function (k) { add('error', 'placeholder', '', 'Placeholder {' + k + '} tidak dikenal di teks paket.', 'texts'); });
+      pkg.entries.forEach(function (e) {
+        if (!e.dir && /[^\x00-\x7f]/.test(e.text))
+          add('warning', 'non-ascii', '§9', e.path + ' berisi karakter non-ASCII; encoding di E3D belum dites (perlu dites).', 'texts');
+      });
+    }
+
     // Untested commands used by the package (fact §9)
     if (d.disciplines.some(function (dd) { return dd.zones.some(function (z) { return !z.pending; }); }))
       add('info', 'untested-new-zone', '§9', 'NEW ZONE setelah navigasi ke site belum dites di ZRF (perlu dites).', '');

@@ -59,6 +59,8 @@
   .tree { font: 13px/1.9 ui-monospace, "Cascadia Mono", Consolas, monospace; }
   .tree .sep { color: var(--muted); } .tree .db { color: var(--muted); float: right; }
   .gap { margin-top: 18px; }
+  pre.code { margin: 0; padding: 12px 14px; font: 12px/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-x: auto; }
+  pre.code .c { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -91,6 +93,11 @@
         <p class="hint">Hasil derive preset ZRF (urutan tampil).</p>
         <div class="inner tree" id="tree"></div>
       </section>
+      <section class="card gap">
+        <h2>Snapshot: macro B2 Equipment</h2>
+        <p class="hint">Hasil generate preset ZRF.</p>
+        <pre class="inner code" id="macro"></pre>
+      </section>
     </div>
     <section class="card">
       <h2>Hasil</h2>
@@ -104,12 +111,14 @@
 <script src="../src/core/model.js"></script>
 <script src="../src/core/derive.js"></script>
 <script src="../src/core/validate.js"></script>
+<script src="../src/core/macros.js"></script>
 <script src="../src/io/zip.js"></script>
 <script src="../src/io/xlsx.js"></script>
 <script src="../src/io/tables.js"></script>
 <script src="../src/presets/zrf.js"></script>
 <script src="harness.js"></script>
 <script src="cases/phase1.js"></script>
+<script src="cases/phase2.js"></script>
 <script>
 (function () {
   'use strict';
@@ -163,6 +172,14 @@
     }).join('');
   }
 
+  function renderMacro() {
+    var pkg = E3D.macros.generate(E3D.presets.zrf.build());
+    var b2 = pkg.entries.find(function (e) { return /B2-SITES/.test(e.path); });
+    $('macro').innerHTML = esc(b2.path) + '\n\n' + b2.text.split('\r\n').map(function (l) {
+      return /^\$\*/.test(l) ? '<span class="c">' + esc(l) + '</span>' : esc(l);
+    }).join('\n');
+  }
+
   function run() {
     $('results').innerHTML = ''; $('status').textContent = 'Berjalan…';
     var pass = 0, fail = 0, t0 = Date.now();
@@ -190,6 +207,7 @@
   $('run').addEventListener('click', run);
 
   renderTree();
+  renderMacro();
   loadAll().then(function (cached) {
     Object.assign(fixtures, cached); renderFixtures();
     if (NEEDED.every(function (n) { return fixtures[n]; })) run();

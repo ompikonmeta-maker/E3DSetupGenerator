@@ -37,8 +37,8 @@ The approved plan is in `PLAN.md`. Its findings T1–T10 (fixture quirks) are bi
 
 ## Code layout
 
-- `src/core/` holds pure logic with no DOM: `util`, `model` (schema, `migrate`, defaults), `derive` (config → DBs/sites/zones/MDB positions), `validate` (issues carry `fact` numbers).
-- `src/io/` holds `zip` (reader via `DecompressionStream`), `xlsx` (regex reader, cell values only) and `tables` (code lists, existing-DB tables, CSV).
+- `src/core/` holds pure logic with no DOM: `util`, `model` (schema, `migrate`, defaults, incl. `texts` = package file names + macro/README templates), `derive` (config → DBs/sites/zones/MDB positions), `macros` (package entries; headers are templates, `$* ` prefixed per line), `validate` (issues carry `fact` numbers; also runs `macros` to catch unknown placeholders / non-ASCII).
+- `src/io/` holds `zip` (reader via `DecompressionStream`, store-mode writer + CRC32), `xlsx` (regex reader, cell values only) and `tables` (code lists, existing-DB tables, CSV).
 - `src/presets/zrf.js` holds the ZRF config, taken from the fixtures.
 - Every file is a classic script that registers on the global `E3D`. Load order is the `<script>` list in `tests/test.html`.
 - Item order in the config is the register order. Display order (sites, B1/B2/B3, MDB) is derived by sorting stably by group (PLAN T1).

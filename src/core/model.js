@@ -32,7 +32,55 @@
       items: [],
       references: [],
       existing: { dbs: [], sites: [] },
-      users: { adminTeam: { team: '', description: '', members: [] }, freeUsers: [] }
+      users: { adminTeam: { team: '', description: '', members: [] }, freeUsers: [] },
+      texts: defaultTexts()
+    };
+  }
+
+  // Package file names and macro/README texts. Header lines get a "$* " prefix
+  // ("$*" alone for an empty line). Neutral defaults; presets carry their own wording.
+  function defaultTexts() {
+    var BANNER = '===========================================================';
+    return {
+      files: {
+        readme: '00-README.txt',
+        teamsDir: '00-TEAMS', teams: '{PROJECTCODE}-00-TEAMS-ADMIN.mac',
+        discDir: '{NN}-{D}-{TEAM}',
+        b1: '{PROJECTCODE}-{NN}-{D}-B1-CREATE-DB-MDB-ADMIN.mac',
+        b2: '{PROJECTCODE}-{NN}-{D}-B2-SITES-DESIGN.mac',
+        b3: '{PROJECTCODE}-{NN}-{D}-B3-ZONES-DESIGN.mac',
+        refDir: '90-REFERENCE', ref: '{PROJECTCODE}-90-REF-MDB-ADMIN.mac',
+        fixDir: '99-FIXUP', fix: '{PROJECTCODE}-99-MDB-REORDER-ADMIN.mac',
+        register: '{PROJECTCODE}-E3D-Register.xlsx'
+      },
+      readme: [
+        '{PROJECTCODE} ({PROJECT}) - E3D SETUP PACKAGE',
+        'Generated {DATE}. Full guide: {REGISTER}, sheet \'Setup Steps\'.',
+        '',
+        'STEPS (command macros only)',
+        ' {TEAMSDIR} -> per discipline: B1 (Admin) -> B2 sites (Design) -> B3 zones (Design)',
+        '',
+        'ORDER: disciplines {FIRST} -> {LAST} (MDB positions follow on), then {REFDIR}.',
+        'Admin steps before Design steps; re-enter DESIGN after each Admin step.',
+        '{FIXDIR} only if the MDB order is wrong.',
+        '{UNTESTED}'
+      ].join('\n'),
+      untested: 'PERLU DITES (not verified yet): {ITEMS}',
+      headers: {
+        teams: [BANNER, '{PROJECTCODE} - STEP 0 - TEAMS - ADMIN (SYSTEM)', 'Run once, before discipline {FIRST}.', BANNER, ''].join('\n'),
+        b1: [BANNER, '{DISCIPLINE} ({TEAM}) - STEP B1 - ADMIN: CREATE {N} DB + MDB', 'Team must exist ({TEAMSDIR}).',
+          'MDB positions {POS_FROM}-{POS_TO}: run disciplines in order {FIRST}->{LAST} (positions follow on).', BANNER, ''].join('\n'),
+        b2: [BANNER, '{DISCIPLINE} - STEP B2 - DESIGN: separators + {N} sites (display order)',
+          'DB given once per DB (first site); next lines without DB go to the same DB.', 'Re-enter DESIGN after B1.', BANNER, ''].join('\n'),
+        b3: [BANNER, '{DISCIPLINE} - STEP B3 - DESIGN: zones', 'Each block: go to SITE, NEW ZONE.', BANNER, ''].join('\n'),
+        ref: [BANNER, 'REFERENCE DBs - ADMIN: add to {MDBNAME}', 'Run AFTER all {N_DISC} disciplines (positions {POS_FROM}+).', BANNER, ''].join('\n'),
+        fix: [BANNER, '{MDBNAME} FIX-UP - ADMIN: CURRENT db n for all (final order)',
+          'Use only if the MDB order is wrong (e.g. disciplines run out of order).', BANNER, ''].join('\n')
+      },
+      teamsNew: '--- {N} new discipline teams ---',
+      teamsExisting: '--- only if the existing {PROJECTCODE} teams were deleted (normally keep) ---',
+      pendingLine: '{LINE}   <- {NOTE}',
+      fixReferenceLabel: 'reference'
     };
   }
 
