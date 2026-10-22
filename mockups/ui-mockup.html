@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E3D Setup Generator — mockup</title>
+<link rel="stylesheet" href="../src/ui/md3/md3-tokens.css">
+<style>
+  /* App theme on MD3 tokens (reference: docs/ui-reference.webp) */
+  :root {
+    --md-sys-color-primary: #151b33; --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #e4e7f5; --md-sys-color-on-primary-container: #151b33;
+    --md-sys-color-secondary: #4a5cd6; --md-sys-color-on-secondary: #ffffff;
+    --md-sys-color-secondary-container: #e8ebfd; --md-sys-color-on-secondary-container: #2c3cae;
+    --md-sys-color-tertiary: #b7791f; --md-sys-color-tertiary-container: #fbf1df; --md-sys-color-on-tertiary-container: #7a4f0f;
+    --md-sys-color-error: #d23c3c; --md-sys-color-error-container: #fde8e8; --md-sys-color-on-error-container: #a32020;
+    --md-sys-color-surface: #f6f7fb; --md-sys-color-on-surface: #141a2e; --md-sys-color-on-surface-variant: #646b80;
+    --md-sys-color-surface-container-lowest: #ffffff; --md-sys-color-surface-container-low: #f9fafc;
+    --md-sys-color-surface-container: #f1f2f8; --md-sys-color-surface-container-high: #eaecf4;
+    --md-sys-color-surface-container-highest: #e3e6f0;
+    --md-sys-color-outline: #c9cdd9; --md-sys-color-outline-variant: #e7e9f0;
+    --ok: #1f8a5b; --ok-container: #e3f4ec;
+    --frame-bg: linear-gradient(160deg, #f4f5fa 0%, #eef0f8 55%, #e4e6fa 100%);
+    --page-bg: #d9dbe2;
+    --card: color-mix(in srgb, var(--md-sys-color-surface-container-lowest) 62%, transparent);
+    --r-card: 26px; --r-inner: 18px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--page-bg); color: var(--md-sys-color-on-surface); font: var(--md-sys-typescale-body-medium); }
+  .ic { display: inline-flex; width: 20px; height: 20px; }
+  .ic svg { width: 100%; height: 100%; }
+
+  .frame { margin: 20px; min-height: calc(100vh - 40px); border-radius: 34px; background: var(--frame-bg);
+    display: grid; grid-template-columns: 76px 292px 1fr; gap: 14px; padding: 14px; box-shadow: 0 30px 60px rgba(20,26,46,.08); }
+
+  /* Rail */
+  .rail { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 6px; }
+  .logo { width: 52px; height: 52px; border-radius: 50%; background: var(--md-sys-color-primary); color: #fff;
+    display: grid; place-items: center; font-weight: 700; font-size: 15px; letter-spacing: .5px; margin-bottom: 14px; }
+  .rbtn { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; border: 0; cursor: pointer;
+    background: var(--md-sys-color-surface-container-lowest); color: var(--md-sys-color-on-surface); position: relative;
+    box-shadow: 0 1px 2px rgba(20,26,46,.05); }
+  .rbtn.on { background: var(--md-sys-color-primary); color: #fff; }
+  .rbtn .dot { position: absolute; top: 9px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: var(--md-sys-color-error);
+    border: 2px solid var(--md-sys-color-surface-container-lowest); }
+  .rail .spacer { flex: 1; }
+
+  /* Secondary panel */
+  .panel { background: var(--card); border-radius: var(--r-card); padding: 22px 16px; display: flex; flex-direction: column; gap: 6px;
+    border: 1px solid rgba(255,255,255,.7); }
+  .panel h2 { font: 500 24px/1.2 var(--md-sys-typescale-font-brand); margin: 0 6px 2px; letter-spacing: -.01em; }
+  .panel .sub { color: var(--md-sys-color-on-surface-variant); margin: 0 6px 12px; font-size: 13px; }
+  .seg { display: flex; background: var(--md-sys-color-surface-container); border-radius: 999px; padding: 4px; margin-bottom: 8px; }
+  .seg button { flex: 1; border: 0; background: transparent; border-radius: 999px; padding: 9px 0; font: inherit; color: var(--md-sys-color-on-surface-variant); cursor: pointer; }
+  .seg button.on { background: var(--md-sys-color-surface-container-lowest); color: var(--md-sys-color-on-surface); font-weight: 600; box-shadow: 0 1px 3px rgba(20,26,46,.08); }
+  .search { display: flex; align-items: center; gap: 10px; background: var(--md-sys-color-surface-container-lowest); border-radius: 999px;
+    padding: 10px 14px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 10px; }
+  .search { white-space: nowrap; }
+  .search kbd { margin-left: auto; font: 11px/1 inherit; background: var(--md-sys-color-surface-container); padding: 4px 7px; border-radius: 8px; }
+  .navh { display: flex; align-items: center; gap: 10px; padding: 9px 8px; color: var(--md-sys-color-on-surface); font-weight: 500; }
+  .navh .ic { color: var(--md-sys-color-on-surface-variant); }
+  .navh .count, .ni .count { margin-left: auto; font-size: 12px; font-weight: 600; background: var(--md-sys-color-surface-container-lowest);
+    padding: 3px 9px; border-radius: 999px; }
+  .tree { border-left: 1.5px solid var(--md-sys-color-outline-variant); margin-left: 17px; padding-left: 6px; display: flex; flex-direction: column; gap: 2px; }
+  .ni { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 14px; color: var(--md-sys-color-on-surface-variant); cursor: pointer; }
+  .ni .lt { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; font-weight: 700;
+    background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface); }
+  .ni.on { background: var(--md-sys-color-surface-container-lowest); color: var(--md-sys-color-on-surface); font-weight: 600; box-shadow: 0 1px 3px rgba(20,26,46,.06); }
+  .count.warn { color: var(--md-sys-color-on-tertiary-container); background: var(--md-sys-color-tertiary-container) !important; }
+  .panel .grow { flex: 1; }
+
+  /* Main */
+  .main { padding: 10px 14px 14px 10px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .crumb { color: var(--md-sys-color-on-surface-variant); font-size: 13px; display: flex; gap: 8px; align-items: center; }
+  .crumb b { color: var(--md-sys-color-on-surface); font-weight: 500; }
+  .head { display: flex; align-items: flex-end; gap: 24px; }
+  .title { display: flex; align-items: center; gap: 14px; }
+  .title .badge { width: 54px; height: 54px; border-radius: 14px; background: var(--md-sys-color-primary); color: #fff;
+    display: grid; place-items: center; font-size: 22px; font-weight: 600; }
+  .title h1 { margin: 0; font: 500 38px/1.1 var(--md-sys-typescale-font-brand); letter-spacing: -.02em; }
+  .lead { color: var(--md-sys-color-on-surface-variant); margin: 6px 0 0; font-size: 15px; }
+  .pill { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; font-size: 13px; font-weight: 500; }
+  .pill .ic { width: 15px; height: 15px; }
+  .pill.err { background: var(--md-sys-color-error-container); color: var(--md-sys-color-error); }
+  .pill.ok { background: var(--ok-container); color: var(--ok); }
+  .pill.info { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+  .pill.warn { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+  .pill.mut { background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface-variant); }
+  .stats { margin-left: auto; display: flex; gap: 34px; align-items: flex-end; }
+  .stat small { display: block; color: var(--md-sys-color-on-surface-variant); font-size: 13px; margin-bottom: 4px; }
+  .stat b { font: 500 32px/1 var(--md-sys-typescale-font-brand); letter-spacing: -.02em; }
+  .cta { display: inline-flex; align-items: center; gap: 10px; background: var(--md-sys-color-primary); color: #fff; border: 0; border-radius: 999px;
+    padding: 15px 24px; font: 500 16px/1 inherit; cursor: pointer; }
+  .cta .ic { width: 20px; height: 20px; }
+
+  .card { background: var(--card); border-radius: var(--r-card); padding: 20px; border: 1px solid rgba(255,255,255,.75); min-width: 0; }
+  .card > .ch { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .card h3 { margin: 0; font: 500 20px/1.25 var(--md-sys-typescale-font-brand); display: flex; align-items: center; gap: 8px; }
+  .card h3 .ic { color: var(--md-sys-color-secondary); }
+  .card .hint { margin: 3px 0 0; color: var(--md-sys-color-on-surface-variant); font-size: 13.5px; }
+  md-chip { white-space: nowrap; }
+  .card .ch .right { flex-wrap: wrap; justify-content: flex-end; margin-left: auto; display: flex; align-items: center; gap: 10px; color: var(--md-sys-color-on-surface-variant); font-size: 13px; }
+  .inner { background: var(--md-sys-color-surface-container-lowest); border-radius: var(--r-inner); padding: 14px 18px; }
+
+  /* Stepper */
+  .steps { display: grid; grid-template-columns: repeat(8, 1fr); padding: 18px 22px; }
+  .step { position: relative; padding-right: 8px; cursor: pointer; }
+  .step .node { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface-variant); position: relative; z-index: 1; font-weight: 600; font-size: 13px; }
+  .step .node .ic { width: 17px; height: 17px; }
+  .step::before { content: ""; position: absolute; left: 40px; right: 6px; top: 17px; height: 1.5px; background: var(--md-sys-color-outline-variant); }
+  .step:last-child::before { display: none; }
+  .step.done .node { background: var(--ok-container); color: var(--ok); }
+  .step.cur .node { background: var(--md-sys-color-primary); color: #fff; }
+  .step.warn .node { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+  .step b { display: block; margin-top: 12px; font-weight: 500; font-size: 14.5px; }
+  .step.cur b { font-weight: 600; }
+  .step small { display: block; color: var(--md-sys-color-on-surface-variant); font-size: 12.5px; margin-top: 3px; }
+
+  .cols { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(300px, 1fr); gap: 16px; align-items: start; }
+
+  /* Group editor */
+  table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.t th { text-align: left; font-weight: 500; color: var(--md-sys-color-on-surface-variant); font-size: 12.5px; padding: 6px 8px; }
+  table.t td { white-space: nowrap; padding: 7px 8px; border-top: 1px solid var(--md-sys-color-outline-variant); }
+  table.t td.mono, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; }
+  table.t .grp td { background: var(--md-sys-color-surface-container-low); border-top: 0; padding: 9px 8px; font-weight: 600; }
+  table.t .grp td:first-child { border-radius: 12px 0 0 12px; } table.t .grp td:last-child { border-radius: 0 12px 12px 0; }
+  .grip { color: var(--md-sys-color-outline); width: 18px; cursor: grab; }
+  .grip .ic { width: 16px; height: 16px; }
+  .code { display: inline-grid; place-items: center; min-width: 30px; padding: 2px 6px; border-radius: 8px; background: var(--md-sys-color-surface-container); font-weight: 600; font-size: 12.5px; }
+  .fn { white-space: nowrap; display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+  .slotbar { display: inline-flex; gap: 2px; vertical-align: middle; margin-left: 8px; }
+  .slotbar i { width: 7px; height: 12px; border-radius: 2px; background: var(--md-sys-color-surface-container-highest); }
+  .slotbar i.f { background: var(--md-sys-color-secondary); }
+  .muted { color: var(--md-sys-color-on-surface-variant); }
+  .dragging td { background: var(--md-sys-color-secondary-container) !important; }
+  .addrow { color: var(--md-sys-color-on-surface-variant); }
+  .addrow td { border-top: 1px dashed var(--md-sys-color-outline) !important; }
+
+  /* Intelligence list */
+  .intel { display: flex; flex-direction: column; }
+  .it { display: grid; grid-template-columns: 38px 1fr; gap: 12px; padding: 14px 0; border-top: 1px solid var(--md-sys-color-outline-variant); }
+  .it:first-child { border-top: 0; padding-top: 4px; }
+  .it .ib { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; }
+  .it .ib .ic { width: 19px; height: 19px; }
+  .it b { font-weight: 500; font-size: 14.5px; }
+  .it p { margin: 4px 0 0; color: var(--md-sys-color-on-surface-variant); font-size: 13.5px; line-height: 1.45; }
+  .ib.err { background: var(--md-sys-color-error-container); color: var(--md-sys-color-error); }
+  .ib.warn { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+  .ib.info { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+  .ib.ok { background: var(--ok-container); color: var(--ok); }
+  .fact { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+    background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); margin-left: 6px; vertical-align: 1px; }
+  .formula { background: var(--md-sys-color-surface-container-low); border-radius: 14px; padding: 12px 14px; font-size: 13.5px; margin-bottom: 6px; }
+  .formula .mono { font-size: 13px; }
+  .bars { display: grid; grid-template-columns: 84px 1fr 44px; gap: 8px 12px; align-items: center; font-size: 13px; margin-top: 12px; }
+  .bar { height: 9px; border-radius: 999px; background: var(--md-sys-color-surface-container-high); overflow: hidden; display: flex; }
+  .bar i { height: 100%; background: var(--md-sys-color-secondary); border-radius: 999px; }
+  .bar i.r { background: var(--md-sys-color-error); margin-left: 3px; }
+
+  /* Preview */
+  .explorer { font: 13px/1.95 ui-monospace, "Cascadia Mono", Consolas, monospace; max-height: 640px; overflow: auto; }
+  .explorer .row { display: flex; align-items: center; gap: 8px; padding: 0 6px; border-radius: 8px; }
+  .explorer .row:hover { background: var(--md-sys-color-surface-container-low); }
+  .explorer .sep { color: var(--md-sys-color-on-surface-variant); }
+  .explorer .meta { margin-left: auto; display: flex; gap: 10px; color: var(--md-sys-color-on-surface-variant); font-size: 11.5px; }
+  .explorer .zc { color: var(--md-sys-color-secondary); }
+  .explorer .ind { color: var(--md-sys-color-outline); }
+  .ftabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .ftab { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--md-sys-color-outline-variant); background: var(--md-sys-color-surface-container-lowest);
+    color: var(--md-sys-color-on-surface-variant); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
+  .ftab .ic { width: 15px; height: 15px; }
+  .ftab.on { background: var(--md-sys-color-primary); color: #fff; border-color: var(--md-sys-color-primary); }
+  pre.src { margin: 0; font: 12.5px/1.65 ui-monospace, "Cascadia Mono", Consolas, monospace; max-height: 560px; overflow: auto; white-space: pre; }
+  pre.src .c { color: var(--md-sys-color-on-surface-variant); }
+  pre.src .k { color: var(--md-sys-color-secondary); font-weight: 600; }
+  pre.src .ln { display: inline-block; width: 34px; color: var(--md-sys-color-outline); user-select: none; }
+
+  /* Generate */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .out { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 14px 0; border-top: 1px solid var(--md-sys-color-outline-variant); }
+  .out:first-child { border-top: 0; }
+  .out .fi { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--md-sys-color-surface-container); }
+  .out .fi .ic { width: 22px; height: 22px; }
+  .out b { font-weight: 500; } .out p { margin: 2px 0 0; color: var(--md-sys-color-on-surface-variant); font-size: 13px; }
+  .opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; }
+  .opt.sel { background: var(--md-sys-color-surface-container-low); }
+  .opt .grow { flex: 1; } .opt small { color: var(--md-sys-color-on-surface-variant); }
+  .alert { display: flex; gap: 10px; align-items: center; padding: 12px 16px; border-radius: 14px; font-size: 14px; margin: 12px 0; }
+  .alert.ok { background: var(--ok-container); color: var(--ok); }
+  .alert .ic { width: 20px; height: 20px; }
+  .sumgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .sumgrid > div { padding: 4px 16px; border-left: 1px solid var(--md-sys-color-outline-variant); }
+  .sumgrid > div:first-child { border-left: 0; padding-left: 0; }
+  .sumgrid small { color: var(--md-sys-color-on-surface-variant); font-size: 13px; }
+  .sumgrid b { display: block; font: 500 28px/1.2 var(--md-sys-typescale-font-brand); margin-top: 4px; }
+  .sumgrid span { font-size: 12.5px; color: var(--md-sys-color-on-surface-variant); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <nav class="rail" id="rail"></nav>
+  <aside class="panel" id="panel"></aside>
+  <main class="main" id="main"></main>
+</div>
+
+<script src="../src/ui/icons.js"></script>
+<script src="../src/ui/md3/md3-components.js"></script>
+<script src="../src/core/util.js"></script>
+<script src="../src/core/model.js"></script>
+<script src="../src/core/derive.js"></script>
+<script src="../src/core/validate.js"></script>
+<script src="../src/core/macros.js"></script>
+<script src="../src/core/register.js"></script>
+<script src="../src/presets/zrf.js"></script>
+<script>
+(function () {
+  'use strict';
+  var I = function (n) { return '<span class="ic">' + E3DIcons.svg(n) + '</span>'; };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var screen = new URLSearchParams(location.search).get('s') || 'groups';
+  var cfg = E3D.presets.zrf.build(), d = E3D.derive(cfg), issues = E3D.validate(cfg, d), sum = E3D.summarizeIssues(issues);
+  var pkg = E3D.macros.generate(cfg);
+  var R = d.disciplines[0];
+
+  var STEPS = [
+    { k: 'project', t: 'Project', s: 'ZRF · /MDB-ZRF', ic: 'folder' },
+    { k: 'disc', t: 'Disiplin & Team', s: '10 disiplin · 5 team baru', ic: 'users' },
+    { k: 'groups', t: 'Grup & Modul', s: '8 grup · 25 item', ic: 'layers' },
+    { k: 'zones', t: 'Zone', s: '4 PENDING', ic: 'grid', warn: true },
+    { k: 'refs', t: 'Referensi', s: '125 DB · 618 existing', ic: 'link' },
+    { k: 'preview', t: 'Preview', s: '340 site · 34 file', ic: 'eye' },
+    { k: 'validate', t: 'Validasi', s: sum.error + ' error · ' + sum.warning + ' warning', ic: 'shield' },
+    { k: 'generate', t: 'Generate', s: 'ZIP + XLSX + JSON', ic: 'download' }
+  ];
+  var cur = STEPS.findIndex(function (s) { return s.k === screen; });
+
+  // Rail
+  document.getElementById('rail').innerHTML = '<div class="logo">E3D</div>' +
+    [['layers', 'Setup', true], ['history', 'Perubahan'], ['file', 'Fakta E3D'], ['shield', 'Test']].map(function (b) {
+      return '<button class="rbtn' + (b[2] ? ' on' : '') + '" title="' + b[1] + '">' + I(b[0]) + '</button>';
+    }).join('') + '<div class="spacer"></div>' +
+    '<button class="rbtn" title="Tema">' + I('moon') + '</button><button class="rbtn" title="Pengaturan">' + I('settings') + '</button>';
+
+  // Panel
+  var discRows = d.disciplines.map(function (dd, i) {
+    var pend = dd.pending;
+    return '<div class="ni' + (i === 0 ? ' on' : '') + '"><span class="lt">' + dd.disc.letter + '</span>' + esc(dd.disc.name) +
+      '<span class="count' + (pend ? ' warn' : '') + '">' + (pend ? 'PENDING' : dd.display.length) + '</span></div>';
+  }).join('');
+  document.getElementById('panel').innerHTML =
+    '<h2>ZRF</h2><p class="sub">ZR FLNG · /MDB-ZRF · preset ZRF</p>' +
+    '<div class="seg"><button class="on">Setup</button><button>Perubahan</button></div>' +
+    '<div class="search">' + I('search') + 'Cari DB, site, zone<kbd>Ctrl K</kbd></div>' +
+    '<div class="navh">' + I('database') + 'Semua DB<span class="count">' + d.dbs.length + '</span></div>' +
+    '<div class="navh">' + I('users') + 'Disiplin' + '<span class="ic" style="margin-left:auto">' + E3DIcons.svg('chevron-down') + '</span></div>' +
+    '<div class="tree">' + discRows + '</div>' +
+    '<div class="navh" style="margin-top:6px">' + I('link') + 'Referensi MDB<span class="count">' + d.references.length + '</span></div>' +
+    '<div class="grow"></div>' +
+    '<div class="navh">' + I('upload') + 'Import config JSON</div>' +
+    '<div class="navh">' + I('download') + 'Export config JSON</div>';
+
+  // Header + stepper
+  var st = STEPS[cur];
+  var head = '<div class="crumb">ZRF ' + E3DIcons.svg('chevron-right', 14) + ' <b>' + st.t + '</b></div>' +
+    '<div class="head"><div><div class="title"><div class="badge">' + I(st.ic) + '</div><h1>' + st.t + '</h1>' +
+    (sum.error ? '<span class="pill err">' + I('alert') + sum.error + ' error</span>' : '<span class="pill ok">' + I('check-circle') + 'Validasi bersih</span>') +
+    '</div><p class="lead">' + ({
+      groups: 'Urutan baris = urutan register. Urutan tampil di Model Explorer dihitung per grup.',
+      preview: 'Hasil persis yang akan masuk ZIP. Site Order mengikuti urutan pembuatan di B2.',
+      generate: 'Semua aturan dicek sebelum file dibuat. Tidak ada data yang keluar dari komputer ini.'
+    }[screen] || '') + '</p></div>' +
+    '<div class="stats"><div class="stat"><small>DB dibuat</small><b>' + d.dbs.length + '</b></div>' +
+    '<div class="stat"><small>Posisi MDB</small><b>' + d.mdbCount + '</b></div>' +
+    '<button class="cta">' + I('download') + 'Generate</button></div></div>' +
+    '<section class="card" style="padding:16px 18px"><div class="ch" style="margin-bottom:10px"><div><h3>Langkah setup</h3>' +
+    '<p class="hint">Team → DB → MDB → Site → Zone (fakta 3.8)</p></div><div class="right">Simpan draft otomatis</div></div>' +
+    '<div class="inner steps">' + STEPS.map(function (s, i) {
+      var cls = i === cur ? 'cur' : s.warn ? 'warn' : i < cur || s.k === 'project' || s.k === 'disc' ? 'done' : '';
+      var node = i === cur ? I(s.ic) : cls === 'done' ? I('check') : cls === 'warn' ? I('alert') : (i + 1);
+      return '<div class="step ' + cls + '"><div class="node">' + node + '</div><b>' + s.t + '</b><small>' + s.s + '</small></div>';
+    }).join('') + '</div></section>';
+
+  var body = '';
+  if (screen === 'groups') body = groupsScreen();
+  if (screen === 'preview') body = previewScreen();
+  if (screen === 'generate') body = generateScreen();
+  document.getElementById('main').innerHTML = head + body;
+  bind();
+
+  function groupsScreen() {
+    var rows = '';
+    cfg.groups.forEach(function (g) {
+      var items = R.display.filter(function (r) { return r.group.name === g.name; });
+      var cap = cfg.dbNumber.groupCapacity, bar = '';
+      for (var k = 0; k < cap; k++) bar += '<i class="' + (k < items.length ? 'f' : '') + '"></i>';
+      rows += '<tr class="grp"><td class="grip">' + I('grip') + '</td><td colspan="3">' + esc(g.name) +
+        '<span class="slotbar" title="slot terpakai">' + bar + '</span> <span class="muted" style="font-weight:400;font-size:12.5px">&nbsp;' + items.length + '/' + cap + '</span></td>' +
+        '<td class="muted" style="font-weight:400">slot ' + g.slotBase + '–' + (g.slotBase + cap - 1) + '</td><td></td><td style="text-align:right"><md-switch selected></md-switch></td></tr>';
+      items.forEach(function (r) {
+        rows += '<tr draggable="true"><td class="grip">' + I('grip') + '</td><td><span class="code">' + r.item.code + '</span></td>' +
+          '<td>' + esc(r.item.label) + (r.item.note ? ' <span class="pill warn" style="padding:2px 8px;font-size:11.5px">' + esc(r.item.note) + '</span>' : '') + '</td>' +
+          '<td><span class="fn">' + r.func.letter + ' · ' + r.func.name + '</span></td><td class="mono">' + r.dbno + '</td><td class="mono">' + esc(r.site) + '</td>' +
+          '<td class="mono muted" style="text-align:right">#' + r.mdbPos + '</td></tr>';
+      });
+      rows += '<tr class="addrow"><td></td><td colspan="6">' + I('plus') + ' Tambah item ke ' + esc(g.name) + '</td></tr>';
+    });
+    var ex = R.display[0];
+    var intel = [
+      ['info', 'sparkle', 'DB No dihitung otomatis', '10000 + urutan disiplin × 100 + slot. Contoh ' + ex.db + ' = 10000 + 1×100 + 1 = ' + ex.dbno + '.', ''],
+      ['ok', 'check-circle', 'DB No unik dan dalam rentang', '250 DB di 10101–11171, semua di 10000–250000.', '1.3'],
+      ['ok', 'check-circle', 'Tidak bentrok dengan ENI', '618 DB existing dicek: 0 nomor dan 0 nama yang sama.', '1.3'],
+      ['warn', 'alert', 'Slot penuh = nomor menabrak grup berikutnya', 'Lebih dari 10 item dalam satu grup memunculkan warning sebelum generate.', ''],
+      ['info', 'info', 'Urutan register ≠ urutan tampil', 'FD dan TR ada sebelum HC di register; di Model Explorer mereka tampil di grup OTHERS.', '']
+    ];
+    return '<div class="cols"><section class="card"><div class="ch"><div><h3>' + I('layers') + 'Grup & modul</h3>' +
+      '<p class="hint">Seret baris untuk mengubah urutan. Preview DB No untuk disiplin <b>R · Equipment</b>.</p></div>' +
+      '<div class="right"><md-chip variant="filter" selected>Separator grup</md-chip><md-chip variant="filter" selected>Separator disiplin</md-chip></div></div>' +
+      '<div class="inner" style="padding:8px 10px"><table class="t"><thead><tr><th></th><th>Code</th><th>Label</th><th>Function</th><th>DB No</th><th>Site</th><th style="text-align:right">MDB</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div></section>' +
+      '<section class="card"><div class="ch"><div><h3>' + I('sparkle') + 'Rumus & cek</h3><p class="hint">Yang dihitung tool dari isian Anda</p></div></div>' +
+      '<div class="inner"><div class="formula"><span class="muted">DB No</span><br><span class="mono">10000 + order × 100 + slotBase + index</span>' +
+      '<div class="bars"><span class="muted">MODULES</span><div class="bar"><i style="width:60%"></i></div><span class="mono">6/10</span>' +
+      '<span class="muted">PIPE-RACK</span><div class="bar"><i style="width:70%"></i></div><span class="mono">7/10</span>' +
+      '<span class="muted">OTHERS</span><div class="bar"><i style="width:30%"></i></div><span class="mono">3/10</span></div></div>' +
+      '<div class="intel">' + intel.map(function (x) {
+        return '<div class="it"><div class="ib ' + x[0] + '">' + I(x[1]) + '</div><div><b>' + x[2] + (x[4] ? '<span class="fact">fakta ' + x[4] + '</span>' : '') + '</b><p>' + esc(x[3]) + '</p></div></div>';
+      }).join('') + '</div></div></section></div>';
+  }
+
+  function previewScreen() {
+    var zonesBySite = {};
+    R.zones.forEach(function (z) { if (!z.pending) zonesBySite[z.row.site] = (zonesBySite[z.row.site] || 0) + 1; });
+    var lastDb = null;
+    var tree = '<div class="row"><span class="ind">▾</span><b>WORLD</b></div>' + R.siteOrder.map(function (s) {
+      var newDb = s.row.db !== lastDb; lastDb = s.row.db;
+      return '<div class="row"><span class="ind">&nbsp;&nbsp;' + (s.type === 'site' ? '▸' : '·') + '</span><span class="' + (s.type === 'site' ? '' : 'sep') + '">' + esc(s.name) + '</span>' +
+        '<span class="meta">' + (s.type === 'site' ? '<span class="zc">' + (zonesBySite[s.name] || 0) + ' zone</span>' : '') +
+        '<span>' + (newDb ? 'DB ' + s.row.dbno : '&nbsp;') + '</span><span>#' + s.row.mdbPos + '</span></span></div>';
+    }).join('');
+    var files = pkg.entries.filter(function (e) { return !e.dir && (!e.disc || e.disc.disc.letter === 'R'); });
+    var b2 = files.find(function (e) { return e.kind === 'b2'; });
+    var code = b2.text.split('\r\n').slice(0, 40).map(function (l, i) {
+      var h = /^\$\*/.test(l) ? '<span class="c">' + esc(l) + '</span>' : esc(l).replace(/^(NEW SITE)/, '<span class="k">$1</span>').replace(/ (DB) /, ' <span class="k">$1</span> ');
+      return '<span class="ln">' + (i + 1) + '</span>' + h;
+    }).join('\n');
+    return '<div class="cols" style="grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)"><section class="card"><div class="ch"><div><h3>' + I('tree') + 'Model Explorer</h3>' +
+      '<p class="hint">Urutan site di dalam DB = urutan pembuatan (fakta 3.4)</p></div>' +
+      '<div class="right"><span class="pill mut">R · Equipment</span></div></div><div class="inner explorer">' + tree + '</div></section>' +
+      '<section class="card"><div class="ch"><div><h3>' + I('file') + 'Isi macro</h3><p class="hint">CRLF, komentar <span class="mono">$*</span>, siap dijalankan di Admin/Design</p></div>' +
+      '<div class="right"><button class="ftab">' + I('copy') + 'Salin</button></div></div>' +
+      '<div class="ftabs">' + files.map(function (e) {
+        var n = e.path.split('/').pop().replace(/^ZRF-/, '').replace(/\.(mac|txt)$/, '');
+        return '<button class="ftab' + (e === b2 ? ' on' : '') + '">' + I(e.kind === 'readme' ? 'info' : 'file') + esc(n) + '</button>';
+      }).join('') + '</div><div class="inner"><pre class="src">' + code + '</pre></div></section></div>';
+  }
+
+  function generateScreen() {
+    var intel = issues.map(function (i) {
+      var t = { error: ['err', 'error-circle'], warning: ['warn', 'alert'], info: ['info', 'info'] }[i.level];
+      return '<div class="it"><div class="ib ' + t[0] + '">' + I(t[1]) + '</div><div><b>' + esc(i.msg) + (i.fact ? '<span class="fact">fakta ' + i.fact + '</span>' : '') + '</b>' +
+        '<p>' + ({ 'zone-pending': 'B3 hanya berisi zone Dummy. Isi aturan zone di langkah Zone kalau sudah ada.', 'untested-new-zone': 'Ditandai "perlu dites" di README untuk project baru.' }[i.code] || '') + '</p></div></div>';
+    }).join('');
+    var chips = d.disciplines.map(function (dd) { return '<md-chip variant="filter" selected>' + dd.disc.letter + ' · ' + esc(dd.disc.name) + '</md-chip>'; }).join('');
+    return '<div class="cols"><section class="card"><div class="ch"><div><h3>' + I('download') + 'Generate paket</h3><p class="hint">Pilih disiplin; posisi MDB tetap absolut</p></div>' +
+      '<div class="right"><md-button variant="text">Pilih semua</md-button></div></div>' +
+      '<div class="inner"><div class="sumgrid"><div><small>Database</small><b>' + d.dbs.length + '</b><span>10 disiplin × 25</span></div>' +
+      '<div><small>Site + separator</small><b>340</b><span>250 site · 90 separator</span></div>' +
+      '<div><small>Zone</small><b style="color:var(--md-sys-color-secondary)">2906</b><span>+ 96 baris PENDING di register</span></div></div>' +
+      '<div class="alert ok">' + I('check-circle') + '0 error, 0 warning. Paket siap dibuat.</div>' +
+      '<div style="font-size:13px;color:var(--md-sys-color-on-surface-variant);margin:14px 0 8px">Disiplin</div><div class="chips">' + chips + '</div>' +
+      '<div style="font-size:13px;color:var(--md-sys-color-on-surface-variant);margin:18px 0 6px">Output</div>' +
+      '<div class="out"><div class="fi">' + I('zip') + '</div><div><b>ZRF-SETUP-PACKAGE.zip</b><p>34 file macro · README · 00-TEAMS · B1/B2/B3 · 90 · 99</p></div><md-checkbox checked></md-checkbox></div>' +
+      '<div class="out"><div class="fi">' + I('sheet') + '</div><div><b>ZRF-E3D-Register.xlsx</b><p>10 sheet · Setup Steps, DB Register, Site Order, Zones …</p></div><md-checkbox checked></md-checkbox></div>' +
+      '<div class="out"><div class="fi">' + I('copy') + '</div><div><b>ZRF-config.json</b><p>Konfigurasi lengkap untuk dibuka lagi / mode perubahan</p></div><md-checkbox checked></md-checkbox></div>' +
+      '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px"><md-button variant="outlined">Preview dulu</md-button><button class="cta">' + I('download') + 'Generate & unduh</button></div>' +
+      '</div></section>' +
+      '<section class="card"><div class="ch"><div><h3>' + I('shield') + 'Hasil validasi</h3><p class="hint">Aturan E3D bernomor fakta</p></div>' +
+      '<div class="right"><span class="pill err">' + sum.error + '</span><span class="pill warn">' + sum.warning + '</span><span class="pill info">' + sum.info + '</span></div></div>' +
+      '<div class="inner"><div class="intel">' + intel + '</div></div></section></div>';
+  }
+
+  function bind() {
+    var dragged = null;
+    document.querySelectorAll('tr[draggable]').forEach(function (tr) {
+      tr.addEventListener('dragstart', function () { dragged = tr; tr.classList.add('dragging'); });
+      tr.addEventListener('dragend', function () { tr.classList.remove('dragging'); });
+      tr.addEventListener('dragover', function (e) { e.preventDefault(); if (dragged && dragged !== tr) tr.parentNode.insertBefore(dragged, tr); });
+    });
+  }
+})();
+</script>
+</body>
+</html>
