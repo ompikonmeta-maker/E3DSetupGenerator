@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E3D Setup Generator — Tests</title>
+<style>
+  :root {
+    --bg: #eef1f6; --bg-2: #e6e8f6; --surface: #ffffff; --surface-2: #f6f7fb;
+    --line: #e7e9f0; --text: #141a2e; --muted: #6b7286; --primary: #141a2e; --on-primary: #fff;
+    --ok: #1f8a5b; --ok-soft: #e3f4ec; --bad: #d23c3c; --bad-soft: #fde9e9;
+    --info: #4f63d9; --info-soft: #eaedfd; --warn: #b7791f; --warn-soft: #fbf1df;
+    --radius: 22px; --radius-sm: 12px; --shadow: 0 1px 2px rgba(20,26,46,.04), 0 8px 24px rgba(20,26,46,.05);
+    font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1220; --bg-2: #141832; --surface: #171b2b; --surface-2: #1d2235; --line: #2a3047;
+      --text: #e8eaf3; --muted: #9aa1b8; --primary: #e8eaf3; --on-primary: #141a2e;
+      --ok-soft: #173327; --bad-soft: #3a1c1f; --info-soft: #1e2550; --warn-soft: #3a2e15; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--text); background: linear-gradient(135deg, var(--bg), var(--bg-2)); min-height: 100vh; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 48px; }
+  .crumb { color: var(--muted); font-size: 13px; }
+  h1 { font-size: 32px; font-weight: 600; margin: 4px 0 4px; letter-spacing: -.02em; }
+  .sub { color: var(--muted); margin: 0 0 22px; }
+  .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .stats { display: flex; gap: 28px; }
+  .stat small { display: block; color: var(--muted); font-size: 12px; }
+  .stat b { font-size: 26px; font-weight: 600; }
+  .stat b.ok { color: var(--ok); } .stat b.bad { color: var(--bad); }
+  .btn { border: 0; background: var(--primary); color: var(--on-primary); padding: 12px 20px; border-radius: 999px;
+    font: inherit; font-weight: 600; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  .btn.ghost { background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+  .grid { display: grid; grid-template-columns: 340px 1fr; gap: 18px; margin-top: 18px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: color-mix(in srgb, var(--surface) 70%, transparent); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .card h2 { font-size: 17px; font-weight: 600; margin: 0 0 2px; }
+  .card p.hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .inner { background: var(--surface); border-radius: 16px; padding: 6px 14px; }
+  .fx { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .fx:last-child { border-bottom: 0; }
+  .pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { color: var(--ok); background: var(--ok-soft); } .pill.bad { color: var(--bad); background: var(--bad-soft); }
+  .pill.info { color: var(--info); background: var(--info-soft); } .pill.warn { color: var(--warn); background: var(--warn-soft); }
+  .pill.muted { color: var(--muted); background: var(--surface-2); }
+  .drop { display: block; margin-top: 12px; border: 1.5px dashed var(--line); border-radius: 16px; padding: 16px; text-align: center;
+    color: var(--muted); font-size: 13px; cursor: pointer; }
+  .drop.over { border-color: var(--info); background: var(--info-soft); }
+  .res { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .res:last-child { border-bottom: 0; }
+  .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; }
+  .dot.ok { background: var(--ok-soft); color: var(--ok); } .dot.bad { background: var(--bad-soft); color: var(--bad); }
+  .res .name { font-size: 14px; font-weight: 500; }
+  .res pre { margin: 6px 0 0; font: 12px/1.5 ui-monospace, "Cascadia Mono", Consolas, monospace; color: var(--muted); white-space: pre-wrap; }
+  .res pre.err { color: var(--bad); }
+  .ms { color: var(--muted); font-size: 12px; }
+  .tree { font: 13px/1.9 ui-monospace, "Cascadia Mono", Consolas, monospace; }
+  .tree .sep { color: var(--muted); } .tree .db { color: var(--muted); float: right; }
+  .gap { margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">E3D Setup Generator › Tests</div>
+  <div class="head">
+    <div>
+      <h1>Test runner</h1>
+      <p class="sub">Golden test terhadap fixture ZRF. Pilih file dari folder <code>fixtures/</code>; tidak ada request jaringan.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><small>Lulus</small><b class="ok" id="nPass">–</b></div>
+      <div class="stat"><small>Gagal</small><b class="bad" id="nFail">–</b></div>
+      <button class="btn" id="run">▶ Jalankan</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <section class="card">
+        <h2>Fixtures</h2>
+        <p class="hint">Disimpan di browser ini setelah dipilih sekali.</p>
+        <div class="inner" id="fxList"></div>
+        <label class="drop" id="drop">Klik atau seret file fixture ke sini
+          <input type="file" id="pick" multiple hidden>
+        </label>
+      </section>
+      <section class="card gap">
+        <h2>Snapshot: Site Order Equipment</h2>
+        <p class="hint">Hasil derive preset ZRF (urutan tampil).</p>
+        <div class="inner tree" id="tree"></div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Hasil</h2>
+      <p class="hint" id="status">Belum dijalankan.</p>
+      <div class="inner" id="results"></div>
+    </section>
+  </div>
+</div>
+
+<script src="../src/core/util.js"></script>
+<script src="../src/core/model.js"></script>
+<script src="../src/core/derive.js"></script>
+<script src="../src/core/validate.js"></script>
+<script src="../src/io/zip.js"></script>
+<script src="../src/io/xlsx.js"></script>
+<script src="../src/io/tables.js"></script>
+<script src="../src/presets/zrf.js"></script>
+<script src="harness.js"></script>
+<script src="cases/phase1.js"></script>
+<script>
+(function () {
+  'use strict';
+  var NEEDED = ['ZRF-SETUP-PACKAGE.zip', 'ZRF-E3D-Register.xlsx', 'BASE-ENI.xlsx', 'fluid-codes.txt'];
+  var fixtures = {};
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+
+  // Fixture cache in IndexedDB (per-browser convenience only).
+  function db() {
+    return new Promise(function (res, rej) {
+      var r = indexedDB.open('e3d-test-fixtures', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('f'); };
+      r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); };
+    });
+  }
+  function save(name, data) {
+    return db().then(function (d) { d.transaction('f', 'readwrite').objectStore('f').put(data, name); }).catch(function () {});
+  }
+  function loadAll() {
+    return db().then(function (d) {
+      return new Promise(function (res) {
+        var st = d.transaction('f').objectStore('f'), out = {};
+        st.openCursor().onsuccess = function (e) {
+          var c = e.target.result;
+          if (c) { out[c.key] = c.value; c.continue(); } else res(out);
+        };
+      });
+    }).catch(function () { return {}; });
+  }
+
+  function renderFixtures() {
+    $('fxList').innerHTML = NEEDED.map(function (n) {
+      var f = fixtures[n];
+      return '<div class="fx"><span>' + n + '</span>' + (f ? '<span class="pill ok">' + Math.round(f.length / 1024) + ' KB</span>'
+        : '<span class="pill muted">belum</span>') + '</div>';
+    }).join('');
+  }
+
+  function addFiles(list) {
+    return Promise.all(Array.from(list).map(function (file) {
+      return file.arrayBuffer().then(function (ab) { fixtures[file.name] = new Uint8Array(ab); return save(file.name, fixtures[file.name]); });
+    })).then(renderFixtures);
+  }
+
+  function renderTree() {
+    var d = E3D.derive(E3D.presets.zrf.build()).disciplines[0];
+    $('tree').innerHTML = d.siteOrder.map(function (s) {
+      var cls = s.type === 'site' ? '' : 'sep';
+      return '<div class="' + cls + '">' + esc(s.name) + '<span class="db">' + s.row.dbno + ' · #' + s.row.mdbPos + '</span></div>';
+    }).join('');
+  }
+
+  function run() {
+    $('results').innerHTML = ''; $('status').textContent = 'Berjalan…';
+    var pass = 0, fail = 0, t0 = Date.now();
+    E3D.test.run(fixtures, function (r) {
+      r.pass ? pass++ : fail++;
+      $('nPass').textContent = pass; $('nFail').textContent = fail;
+      var el = document.createElement('div');
+      el.className = 'res';
+      el.innerHTML = '<div class="dot ' + (r.pass ? 'ok' : 'bad') + '">' + (r.pass ? '✓' : '✕') + '</div><div><div class="name">' + esc(r.name) + '</div>' +
+        (r.msg ? '<pre class="err">' + esc(r.msg) + '</pre>' : '') +
+        (r.notes.length ? '<pre>' + esc(r.notes.join('\n')) + '</pre>' : '') + '</div><div class="ms">' + r.ms + ' ms</div>';
+      $('results').appendChild(el);
+    }).then(function (all) {
+      $('status').innerHTML = all.length + ' test · ' + (Date.now() - t0) + ' ms · ' +
+        (fail ? '<span class="pill bad">' + fail + ' gagal</span>' : '<span class="pill ok">semua lulus</span>');
+      document.body.dataset.done = '1';
+    });
+  }
+
+  var drop = $('drop');
+  $('pick').addEventListener('change', function (e) { addFiles(e.target.files).then(run); });
+  drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', function () { drop.classList.remove('over'); });
+  drop.addEventListener('drop', function (e) { e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files).then(run); });
+  $('run').addEventListener('click', run);
+
+  renderTree();
+  loadAll().then(function (cached) {
+    Object.assign(fixtures, cached); renderFixtures();
+    if (NEEDED.every(function (n) { return fixtures[n]; })) run();
+  });
+})();
+</script>
+</body>
+</html>

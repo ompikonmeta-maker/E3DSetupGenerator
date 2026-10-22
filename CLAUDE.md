@@ -12,7 +12,36 @@ No application code exists yet. The repo holds only the brief, reference docs (`
 - **Work in phases**, and show results after each one: data model + formulas → macro generator + golden test → XLSX register → UI → change ("perubahan") mode.
 - Talk to the user **briefly, in Indonesian**. Compare with Smart3D where relevant (their background is Smart3D).
 
-There are no build, lint or test commands yet. Once you add them, document them here.
+The approved plan is in `PLAN.md`. Its findings T1–T10 (fixture quirks) are binding.
+
+## Standing rules from the user (always apply)
+
+- **Always give a snapshot of your work.** After each piece of work, show a screenshot (Playwright + `/opt/pw-browsers` Chromium) or a test-result excerpt, and send it with SendUserFile.
+- **Keep responses concise.**
+- **The tool must be future-proof (important).** Keep everything config-driven, with no ZRF values hard-coded outside `presets/`. The config carries `schemaVersion` with migrations. Keep pure core logic separate from the UI. New disciplines, groups, functions or patterns must not need code changes.
+- **Ask whenever in doubt. Never assume.** This covers E3D behaviour, fixture interpretation and UX choices.
+
+## Decisions (2026-10-22)
+
+- Target the latest Edge/Chrome. Built-ins such as `DecompressionStream` are allowed.
+- Use system fonts and inline SVG icons; don't embed Roboto or Material Symbols.
+- Visual style is clean and modern, per `docs/ui-reference.webp`: soft surfaces, rounded cards, an icon rail and a secondary list panel, and a stepper.
+- Code lives in `src/`. The single built file `dist/e3d-setup-generator.html` is committed, and the build runs on the dev machine only.
+- Narrative register texts are free text in the config. The ZRF preset holds the exact fixture text.
+
+## Commands
+
+- Tests (browser, the primary runner): open `tests/test.html` and pick the four files in `fixtures/`. They are cached in IndexedDB.
+- Tests (Node, dev only): `node tests/run-node.mjs [filter]`. It loads exactly the `<script src>` list of `tests/test.html`.
+- Snapshot: run Playwright (global `npm root -g`, Chromium at `/opt/pw-browsers`) against `file://…/tests/test.html`, using `setInputFiles('#pick', fixtures)`.
+
+## Code layout
+
+- `src/core/` holds pure logic with no DOM: `util`, `model` (schema, `migrate`, defaults), `derive` (config → DBs/sites/zones/MDB positions), `validate` (issues carry `fact` numbers).
+- `src/io/` holds `zip` (reader via `DecompressionStream`), `xlsx` (regex reader, cell values only) and `tables` (code lists, existing-DB tables, CSV).
+- `src/presets/zrf.js` holds the ZRF config, taken from the fixtures.
+- Every file is a classic script that registers on the global `E3D`. Load order is the `<script>` list in `tests/test.html`.
+- Item order in the config is the register order. Display order (sites, B1/B2/B3, MDB) is derived by sorting stably by group (PLAN T1).
 
 ## Hard constraints (target environment)
 

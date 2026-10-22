@@ -15,6 +15,7 @@ Status: **draf, menunggu persetujuan**. Belum ada kode yang ditulis.
 | T7 | `90-REFERENCE`: baris pending ditulis `$* ADD X   <- SMA pending` dan tidak memakan nomor posisi. `99-FIXUP` mengikuti pola yang sama (`$* CURRENT …`). | Item referensi punya `pending` + `pendingNote`. |
 | T8 | Tanggal hanya muncul di `00-README.txt` (`Generated 2026-10-21`). | Normalisasi golden test cukup pada baris itu. |
 | T9 | Register memakai sel `inlineStr` dan angka bertipe `n`. Fluid code di `fluid-codes.txt` punya spasi di belakang (`VT      `). | Parser fluid melakukan trim. Writer XLSX cukup inlineStr + number. |
+| T11 | Status zone di register berbeda untuk site Future/Study: "Pattern applied to Future/Study site (doc defines naming per site)". | `functions[].zoneStatus` (override opsional). |
 | T10 | `BASE-ENI.xlsx` (619 baris) hanya berisi nama DB + DB No. Nama site ENI (mis. `/R-LQD`) tidak ada di sana. | Cek bentrok site butuh daftar terpisah (paste/CSV). |
 
 ## 2. Struktur file
