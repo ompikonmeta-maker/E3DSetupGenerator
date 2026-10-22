@@ -71,7 +71,7 @@
       display.forEach(function (row, i) {
         if (i === 0 && cfg.separators.discipline)
           siteOrder.push({ type: 'sepDiscipline', name: fmt(cfg.formats.sepDiscipline, v0, missing), row: row, group: '' });
-        if (row.group.name !== lastGroup && cfg.separators.group)
+        if (row.group.name !== lastGroup && cfg.separators.group && row.group.separator !== false)
           siteOrder.push({ type: 'sepGroup', name: fmt(cfg.formats.sepGroup, Object.assign({}, v0, { GROUP: row.group.name }), missing),
             row: row, group: row.group.name });
         lastGroup = row.group.name;

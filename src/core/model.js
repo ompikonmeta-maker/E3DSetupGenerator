@@ -127,7 +127,7 @@
     disciplines: { letter: '', name: '', order: 0, team: '', teamExists: false, teamDescExisting: '',
       members: [], active: true, items: null, zones: [] },
     zone: { suffix: '', purpose: '', docRef: '', status: '', forEach: '' },
-    groups: { name: '', slotBase: 0 },
+    groups: { name: '', slotBase: 0, separator: true },   // separator: per-group switch (global: separators.group)
     items: { code: '', label: '', desc: '', group: '', func: '', note: '' },
     references: { db: '', pending: false, note: '' },
     codeItem: { code: '', desc: '', note: '' }

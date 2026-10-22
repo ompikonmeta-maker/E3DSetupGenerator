@@ -180,6 +180,15 @@
     ctx.eq(E3D.derive(cfg).disciplines[0].siteOrder[0].name, '/R----MODULES----', 'hanya separator grup');
   });
 
+  T.add(G, 'Separator per grup: matikan HULL-BODY → hanya separator itu yang hilang', function (ctx) {
+    var cfg = zrf();
+    cfg.groups.find(function (g) { return g.name === 'HULL-BODY'; }).separator = false;
+    var so = E3D.derive(cfg).disciplines[0].siteOrder.map(function (s) { return s.name; });
+    ctx.ok(so.indexOf('/R----HULL-BODY----') < 0, 'separator HULL-BODY masih ada');
+    ctx.ok(so.indexOf('/R----HULL-DECK----') >= 0 && so.indexOf('/----EQUIPMENT----') === 0, 'separator lain hilang');
+    ctx.eq(so.length, 33);
+  });
+
   T.add(G, 'Batas: grup > 10 item → warning + DB No dobel → error', function (ctx) {
     var cfg = zrf();
     for (var k = 7; k <= 11; k++) cfg.items.splice(5 + k - 6, 0, { code: 'M' + k, label: 'M' + k, desc: 'M' + k, group: 'MODULES', func: 'D', note: '' });
